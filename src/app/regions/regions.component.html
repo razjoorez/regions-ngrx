@@ -26,20 +26,38 @@
         </ul>
       </div>
     </ng-container>
-      <div  *ngIf=" regSelected$ | async as regs "  class="countries dropdown">
-        <h3>Please select a Country</h3>
-        <button class="btn btn-secondary dropdown-toggle form-control" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-          Countries of {{regs}}
-        </button>
-        <ul class="dropdown-menu form-control" aria-labelledby="dropdownMenuButton1">
-          <li  *ngFor="let country of countries$ | async "  (click)="selectCountry(country)" >
-            {{country.name}}
+    
+      <div *ngIf="regSelected$ | async as regs" class="countries dropdown">
+        <!-- Error Alert -->
+        <div *ngIf="error$ | async as error" class="alert alert-danger" role="alert">
+          <strong>Error:</strong> {{ error }}
+          <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="retry(regs)">
+            Retry
+          </button>
+        </div>
 
-          </li>
+        <!-- Loading Spinner -->
+        <div *ngIf="loading$ | async" class="text-center my-3">
+          <div class="spinner-border text-secondary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Loading countries...</p>
+        </div>
 
-        </ul>
+        <!-- Country Dropdown (only show when not loading and no error) -->
+        <ng-container *ngIf="!(loading$ | async) && !(error$ | async)">
+          <h3>Please select a Country</h3>
+          <button class="btn btn-secondary dropdown-toggle form-control" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            Countries of {{regs}}
+          </button>
+          <ul class="dropdown-menu form-control" aria-labelledby="dropdownMenuButton1">
+            <li *ngFor="let country of countries$ | async" (click)="selectCountry(country)">
+              {{country.name}}
+            </li>
+          </ul>
+        </ng-container>
       </div>
-
+     <button class="btn btn-secondary mt-4 " [routerLink]="['/dashboard']" (click)="exit()">Refresh</button>
     </div>
 
 

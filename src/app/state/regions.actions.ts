@@ -31,3 +31,12 @@ export const selectCountry = createAction(
   '[Region] Select Country',
   props<{country: Country}>()
 )
+
+export const loadCountriesFailure = createAction(
+  '[Region] Load Countries Failure',
+  props<{error: string}>()
+)
+
+export const clearError = createAction(
+  '[Region] Clear Error'
+)

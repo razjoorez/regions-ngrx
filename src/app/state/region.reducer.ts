@@ -5,25 +5,29 @@ import * as regionsAction from './regions.actions'
 export interface RegionState {
   region1: string;
   region2: string;
-  regionInit:string[];
+  regionInit: string[];
   regionSelected: string;
   countries: Country[];
   countrySelected: Country;
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: RegionState = {
   region1: 'Asia',
   region2: 'Europe',
-  regionInit: ['Asia','Europe'],
+  regionInit: ['Asia', 'Europe'],
   regionSelected: '',
   countries: [],
   countrySelected: {
     name: "",
     capital: "",
     population: "",
-    currencies:[{name:''}],
+    currencies: [{ name: '' }],
     flag: ""
-  }
+  },
+  loading: false,
+  error: null
 }
 
 const getRegionFeatureState = createFeatureSelector<RegionState>('regions');
@@ -48,34 +52,69 @@ export const getCountry = createSelector(
   state => state.countrySelected
 )
 
+export const getLoading = createSelector(
+  getRegionFeatureState,
+  state => state.loading
+)
+
+export const getError = createSelector(
+  getRegionFeatureState,
+  state => state.error
+)
+
 export const regionReducer = createReducer<RegionState>(
   initialState,
-  on(regionsAction.getRegions,(state): RegionState => {
-      return {
-          ...state
-      }
-  }),on(regionsAction.setRegion, (state, action): RegionState => {
-      return {
-          ...state,
-          regionSelected : action.regionSelected,
-          countrySelected:  {
-            name: "",
-            capital: "",
-            population: "",
-            currencies: [{name: ''}],
-            flag: ""
-          }
-      }
-  }),on(regionsAction.setCountries, (state, action): RegionState => {
-      return {
-          ...state,
-          countries: action.countries
-      }
-  }),on(regionsAction.selectCountry,(state, action): RegionState => {
+  on(regionsAction.getRegions, (state): RegionState => {
     return {
-        ...state,
-        countrySelected: action.country
+      ...state
     }
-})
-
+  }),
+  on(regionsAction.getAsia, regionsAction.getEurope, (state): RegionState => {
+    return {
+      ...state,
+      loading: true,
+      error: null
+    }
+  }),
+  on(regionsAction.setRegion, (state, action): RegionState => {
+    return {
+      ...state,
+      regionSelected: action.regionSelected,
+      countrySelected: {
+        name: "",
+        capital: "",
+        population: "",
+        currencies: [{ name: '' }],
+        flag: ""
+      }
+    }
+  }),
+  on(regionsAction.setCountries, (state, action): RegionState => {
+    return {
+      ...state,
+      countries: action.countries,
+      loading: false,
+      error: null
+    }
+  }),
+  on(regionsAction.selectCountry, (state, action): RegionState => {
+    return {
+      ...state,
+      countrySelected: action.country
+    }
+  }),
+  on(regionsAction.loadCountriesFailure, (state, action): RegionState => {
+    return {
+      ...state,
+      loading: false,
+      error: action.error,
+      countries: []
+    }
+  }),
+  on(regionsAction.clearError, (state): RegionState => {
+    return {
+      ...state,
+      error: null
+    }
+  })
 )
