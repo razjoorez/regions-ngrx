@@ -5,8 +5,8 @@ import { State }from '../state/app.state';
 import { CountriesService } from '../shared/countries.service';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
-import { getCountries, getInitialRegions, getRegionSelected } from '../state/region.reducer';
-import *  as regionsActions from '../../app/state/regions.actions';
+import { getCountries, getError, getInitialRegions, getLoading, getRegionSelected } from '../state/region.reducer';
+import * as regionsActions from '../../app/state/regions.actions';
 @Component({
   selector: 'app-regions',
   templateUrl: './regions.component.html',
@@ -17,16 +17,22 @@ export class RegionsComponent {
   initRegions$!: Observable<any>;
   regSelected$!: Observable<any>;
   countries$!: Observable<Country[]>;
+  loading$!: Observable<boolean>;
+  error$!: Observable<string | null>;
   countrySelected!: {};
-  regionSelected:boolean = false;
+  regionSelected: boolean = false;
 
-  constructor(private store: Store<State> ,
+  constructor(
+    private store: Store<State>,
     private countryService: CountriesService,
-    private router : Router){
-      this.initRegions$ = this.store.select(getInitialRegions);
-      this.regSelected$ = this.store.select(getRegionSelected);
-      this.countries$ = this.store.select(getCountries);
-      this.getRegionSelected();
+    private router: Router
+  ) {
+    this.initRegions$ = this.store.select(getInitialRegions);
+    this.regSelected$ = this.store.select(getRegionSelected);
+    this.countries$ = this.store.select(getCountries);
+    this.loading$ = this.store.select(getLoading);
+    this.error$ = this.store.select(getError);
+    this.getRegionSelected();
   }
 
   selectReg(region: string) {
@@ -60,4 +66,21 @@ export class RegionsComponent {
     if (value!=='') this.regionSelected = true;
   }
 
+  exit() {
+    location.reload();
+  }
+
+  clearError() {
+    this.store.dispatch(regionsActions.clearError());
+  }
+
+  retry(region: string) {
+    this.clearError();
+    if (region === 'Europe') {
+      this.store.dispatch(regionsActions.getEurope());
+    }
+    if (region === 'Asia') {
+      this.store.dispatch(regionsActions.getAsia());
+    }
+  }
 }
